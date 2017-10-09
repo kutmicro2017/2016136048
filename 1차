@@ -1,0 +1,125 @@
+#define UP_RED 2
+#define UP_YELLOW 3
+#define UP_GREEN 4 //위쪽 불
+
+#define DOWN_RED 22
+#define DOWN_YELLOW 24
+#define DOWN_GREEN 26  //아래쪽 불
+
+#define RIGHT_RED 11
+#define RIGHT_YELLOW 12
+#define RIGHT_GREEN 13  //오른쪽 불
+
+#define LEFT_RED 33
+#define LEFT_YELLOW 35
+#define LEFT_GREEN 37  //왼쪽 불
+
+#define UD_SW 47       //위아래 스위치
+#define LR_SW 49       //양옆 스위치
+
+#define LED 8
+
+int interval = 10000;
+unsigned long TimeUD;
+unsigned long TimeLR;
+
+void setup()  // 초기 한번 실행
+{
+  // 디지털 I/O의 경우 LED에 저항이 그라운드 쪽에 있다면 HIGH에 켜지고, 핀 쪽에 있다면 LOW에서 켜짐
+  // pinMode 함수 : 핀이 INPUT || OUTPUT 중 어느 모드로 동작할 것인지 설정
+  pinMode(UP_RED, OUTPUT);  
+  pinMode(UP_YELLOW, OUTPUT);
+  pinMode(UP_GREEN, OUTPUT);
+  
+  pinMode(DOWN_RED, OUTPUT);
+  pinMode(DOWN_YELLOW, OUTPUT);
+  pinMode(DOWN_GREEN, OUTPUT);
+  
+  pinMode(RIGHT_RED, OUTPUT);
+  pinMode(RIGHT_YELLOW, OUTPUT);
+  pinMode(RIGHT_GREEN, OUTPUT);
+  
+  pinMode(LEFT_RED, OUTPUT);
+  pinMode(LEFT_YELLOW, OUTPUT);
+  pinMode(LEFT_GREEN, OUTPUT);
+  
+  pinMode(UD_SW, INPUT_PULLUP);
+  pinMode(LR_SW, INPUT_PULLUP);
+  pinMode(LED, OUTPUT);
+  initLeftRight();
+  /*TimeLR = 5000;*/
+}
+
+void loop() //반복적으로 호출, 장비 상태 변화, 요청에 대한 응답을 처리하는 코드
+// 전원 꺼지거나 리셋버튼 눌릴 때까지 반복적으로 호출
+{
+  // digitalRead 함수 : 핀으로부터 현재 상태 값(HIGH LOW)을 읽음
+  if(digitalRead(LR_SW) == LOW && digitalRead(UP_GREEN) == HIGH){
+    delay(3000);
+    Blink_UD_LED();
+    initLeftRight();
+  }
+  else if(digitalRead(UD_SW) == LOW && digitalRead(LEFT_GREEN) == HIGH){
+    delay(3000);
+    Blink_LR_LED();
+    initUpDown();
+  }
+  else{
+  unsigned long currentTime1 = millis();   
+    if(currentTime1 > TimeUD + interval && currentTime1 > TimeLR + interval*2){
+      Blink_UD_LED();
+      initLeftRight(); 
+    }
+  unsigned long currentTime2 = millis();
+    if(currentTime2 > TimeLR + interval && currentTime2 > TimeUD + interval*2){
+      Blink_LR_LED();
+      initUpDown();
+    }
+ }
+}
+ 
+void Blink_LR_LED(){
+  // digitalWrite 함수 : 디지털 핀(혹은 아날로그 핀)에 HIGH || LOW 값은 전송해 5V 혹은 0V 상태를 변경
+  digitalWrite(RIGHT_GREEN, LOW);  digitalWrite(LEFT_GREEN, LOW);
+   for(int i = 0; i<10; i++){
+  digitalWrite(LEFT_YELLOW, HIGH);   digitalWrite(RIGHT_YELLOW, HIGH);
+  delay(500);
+  digitalWrite(LEFT_YELLOW, LOW);   digitalWrite(RIGHT_YELLOW, LOW);
+  delay(500);
+ }
+}
+
+void Blink_UD_LED(){
+  digitalWrite(UP_GREEN, LOW);  digitalWrite(DOWN_GREEN, LOW);
+   for(int i = 0; i<10; i++){
+  digitalWrite(UP_YELLOW, HIGH);   digitalWrite(DOWN_YELLOW, HIGH);
+  delay(500);
+  digitalWrite(UP_YELLOW, LOW);   digitalWrite(DOWN_YELLOW, LOW);
+  delay(500);
+ }
+}
+
+void initUpDown(){
+  digitalWrite(UP_GREEN, HIGH); digitalWrite(DOWN_GREEN, HIGH);
+  digitalWrite(LEFT_RED, HIGH); digitalWrite(RIGHT_RED, HIGH);
+  
+  digitalWrite(UP_YELLOW, LOW);   digitalWrite(DOWN_YELLOW, LOW);
+  digitalWrite(LEFT_YELLOW, LOW);   digitalWrite(RIGHT_YELLOW, LOW);
+  digitalWrite(UP_RED, LOW);  digitalWrite(DOWN_RED, LOW);
+  digitalWrite(RIGHT_GREEN, LOW);  digitalWrite(LEFT_GREEN, LOW);
+  TimeUD = millis();
+  TimeLR = millis();
+  }
+  
+ void initLeftRight(){
+  digitalWrite(RIGHT_GREEN, HIGH);  digitalWrite(LEFT_GREEN, HIGH);
+  digitalWrite(UP_RED, HIGH);  digitalWrite(DOWN_RED, HIGH);
+
+  digitalWrite(UP_YELLOW, LOW);   digitalWrite(DOWN_YELLOW, LOW);
+  digitalWrite(LEFT_YELLOW, LOW);   digitalWrite(RIGHT_YELLOW, LOW);
+  digitalWrite(LEFT_RED, LOW);  digitalWrite(RIGHT_RED, LOW);
+  digitalWrite(UP_GREEN, LOW);  digitalWrite(DOWN_GREEN, LOW);
+  TimeLR = millis();
+  TimeUD = millis();
+  }
+ 
