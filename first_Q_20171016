@@ -1,0 +1,106 @@
+#define UPPER_RED 2
+#define UPPER_YELLOW 3
+#define UPPER_GREEN 4 //위쪽 불 // 핀번호
+#define LOWER_RED 22
+#define LOWER_YELLOW 24
+#define LOWER_GREEN 26  //아래쪽 불 // 핀번호
+#define RIGHT_RED 11
+#define RIGHT_YELLOW 12
+#define RIGHT_GREEN 13  //오른쪽 불 // 핀번호
+#define LEFT_RED 33
+#define LEFT_YELLOW 35
+#define LEFT_GREEN 37  //왼쪽 불 // 핀번호
+#define UD_SW 49       //위아래 스위치
+#define LR_SW 47       //양옆 스위치
+
+int interval = 10000; // 스위치 누르지 않았을때 시간, 나누기 1000해주면 sec 즉 5000 일때  5000 / 1000 => 5초
+unsigned long TimeUD; // 위 아래 불이 켜져있을때 millis를 입력 하기 위한 변수
+unsigned long TimeLR; // 좌 우 불이 켜져있을때 millis를 입력 하기 위한 변수
+
+void setup()  // 초기 한번 실행
+{
+  pinMode(UPPER_RED, OUTPUT); // 초기값을 설정 각 핀에 대해서 모두 초기화
+  pinMode(UPPER_YELLOW, OUTPUT);
+  pinMode(UPPER_GREEN, OUTPUT);
+  pinMode(LOWER_RED, OUTPUT);
+  pinMode(LOWER_YELLOW, OUTPUT);
+  pinMode(LOWER_GREEN, OUTPUT);
+  pinMode(RIGHT_RED, OUTPUT);
+  pinMode(RIGHT_YELLOW, OUTPUT);
+  pinMode(RIGHT_GREEN, OUTPUT);
+  pinMode(LEFT_RED, OUTPUT);
+  pinMode(LEFT_YELLOW, OUTPUT);
+  pinMode(LEFT_GREEN, OUTPUT);
+  pinMode(UD_SW, INPUT_PULLUP);
+  pinMode(LR_SW, INPUT_PULLUP);
+  initLeftRight(); // 좌우 초록불이 켜지는 것으로 시작
+  TimeUD = -interval; 
+}
+
+void loop() //반복
+{
+  if(digitalRead(LR_SW) == LOW && digitalRead(UPPER_GREEN) == HIGH){ // (스위치는 LOW가 스위치 눌린 경우, HIGH가 안눌린 경우) && (위에 초록불 켜졌을 때)
+    delay(1000); // 주황불 1초후 켜지게 함 바로 뒤 블링크가 깜빡이는 함수
+    Blink_UD_LED(); // 깜빡이는 함수 호출
+    initLeftRight(); // 좌 우 불 킴
+  }
+  else if(digitalRead(UD_SW) == LOW && digitalRead(LEFT_GREEN) == HIGH){ // (스위치는 LOW가 스위치 눌린 경우, HIGH가 안눌린 경우) && (왼쪽 초록불 켜졌을 때)
+    delay(1000);// 주황불 1초후 켜지게 함 바로 뒤 블링크가 깜빡이는 함수
+    Blink_LR_LED();// 깜빡이는 함수 호출
+    initUpDown();// 위 아래 불 킴
+  }
+  else{// 버튼 둘다 안눌리고 그냥 기다린 경우 변경되는 조건
+    unsigned long currentTime = millis(); // 시간 값 입력
+    
+    if(currentTime > TimeUD + interval && currentTime > TimeLR + interval*2){ //
+      Blink_UD_LED(); // 깜빡이는 함수
+      initLeftRight();  // 좌우 켜짐
+    }
+    else if(currentTime > TimeLR + interval && currentTime > TimeUD + interval*2){
+      Blink_LR_LED(); // 좌우 깜빡이 함수
+      initUpDown();  // 위 아래 켜짐
+    }
+ }
+}
+ 
+void Blink_LR_LED(){ // 좌우 깜빡이 함수
+  digitalWrite(RIGHT_GREEN, LOW);  digitalWrite(LEFT_GREEN, LOW); // 초록불 꺼져랏
+   for(int i = 0; i<3; i++){ // for문 i값 있는거 가지고 횟수 반복 5번 하려면 중간에 조건식 i < 5
+  digitalWrite(LEFT_YELLOW, HIGH);   digitalWrite(RIGHT_YELLOW, HIGH);  // 좌우 주황불 켜져랏
+  delay(500); // 1초 깜빡이 하려면 0.5초 씩
+  digitalWrite(LEFT_YELLOW, LOW);   digitalWrite(RIGHT_YELLOW, LOW); // 좌우 주황불 꺼짐
+  delay(500); // 1초 깜빡이 하려면 0.5초씩
+ }
+}
+
+void Blink_UD_LED(){ // 위아래 깜빡잏렁나ㅣ숳러ㅏ이눟서ㅏ인
+  digitalWrite(UPPER_GREEN, LOW);  digitalWrite(LOWER_GREEN, LOW); // 위 아래 초록불 꺼짐
+   for(int i = 0; i<3; i++){ //  for문 i값 있는거 가지고 횟수 반복 5번 하려면 중간에 조건식 i < 5
+  digitalWrite(UPPER_YELLOW, HIGH);   digitalWrite(LOWER_YELLOW, HIGH); // 위 아래 주황불 켜져랏
+  delay(500);// 1초 깜빡이 하려면 0.5초 씩
+  digitalWrite(UPPER_YELLOW, LOW);   digitalWrite(LOWER_YELLOW, LOW); // 위 아래 위위 아래
+  delay(500);// 1초 깜빡이 하려면 0.5초씩
+ }
+}
+
+void initUpDown(){ // 위 아래 불 켜져랏
+  digitalWrite(UPPER_GREEN, HIGH); digitalWrite(LOWER_GREEN, HIGH); // 위 아래 초록불 켜져랏
+  digitalWrite(LEFT_RED, HIGH); digitalWrite(RIGHT_RED, HIGH); // 좌 우 빨간불 켜져랏
+  
+  digitalWrite(UPPER_YELLOW, LOW);   digitalWrite(LOWER_YELLOW, LOW); // 나머지 다 꺼져라
+  digitalWrite(LEFT_YELLOW, LOW);   digitalWrite(RIGHT_YELLOW, LOW); 
+  digitalWrite(UPPER_RED, LOW);  digitalWrite(LOWER_RED, LOW);
+  digitalWrite(RIGHT_GREEN, LOW);  digitalWrite(LEFT_GREEN, LOW);
+  TimeUD = millis(); //위 아래 켜진거 시간 값 넣기
+  }
+  
+ void initLeftRight(){ // 좌 우 불 켜져랏
+  digitalWrite(RIGHT_GREEN, HIGH);  digitalWrite(LEFT_GREEN, HIGH); // 좌우 초록불 켜져랏
+  digitalWrite(UPPER_RED, HIGH);  digitalWrite(LOWER_RED, HIGH); // 위 아래 빨간불 켜져랏
+
+  digitalWrite(UPPER_YELLOW, LOW);   digitalWrite(LOWER_YELLOW, LOW); // 나머지 다 꺼져라!
+  digitalWrite(LEFT_YELLOW, LOW);   digitalWrite(RIGHT_YELLOW, LOW);
+  digitalWrite(LEFT_RED, LOW);  digitalWrite(RIGHT_RED, LOW);
+  digitalWrite(UPPER_GREEN, LOW);  digitalWrite(LOWER_GREEN, LOW);
+  TimeLR = millis(); // 좌우 켜진거 시간 값 넣기
+ }
