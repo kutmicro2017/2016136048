@@ -14,4 +14,6 @@ https://youtu.be/m97ozXpSGBA
 https://youtu.be/miaYOmpD8X4 
 2차 시연 영상
 
+https://youtu.be/URmxZXK6Jw0
+기말프로젝트 영상
 
